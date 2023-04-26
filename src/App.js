@@ -1,16 +1,39 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import './App.css';
+import { Base64 } from 'js-base64';
 
-function App() {
-  const [rankitems, setRankItems] = useState([]);
+function App() {  
+  const [rankItems, setRankItemsState] = useState(() => {
+      const encodedList = window.location.hash.slice(1); // Extract the encoded list from the URL hash; // Extract the encoded list from the URL hash
+      if (encodedList) {
+        try {
+          return JSON.parse(Base64.atob(encodedList)); // Decode the list using Base64 encoding
+        } catch (error) {
+          console.error('Error decoding list from URL:', error);
+        }
+      } else {
+        return [];
+      }
+  });
 
   const [newItemName, setNewItemName] = useState('');
+
+  function putDataToURL(rankItems) {
+    const encodedList = Base64.btoa(JSON.stringify(rankItems)); // Encodes the list using Base64 encoding
+    const url = `#${encodedList}`; // Builds the URL with the encoded list behind a hash
+    window.location.hash = url; // Navigates to the new URL with the encoded list behind a hash
+  }
+
+  function setRankItems(rankItems) {
+    setRankItemsState(rankItems);
+    putDataToURL(rankItems);
+  }
 
   function handleOnDragEnd(result) {
     if (!result.destination) return;
 
-    const items = Array.from(rankitems);
+    const items = Array.from(rankItems);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
@@ -19,13 +42,13 @@ function App() {
 
   function handleAddItem() {
     if (newItemName.trim() !== '') {
-      setRankItems([...rankitems, { id: Date.now().toString(), name: newItemName }]);
+      setRankItems([...rankItems, { id: Date.now().toString(), name: newItemName }]);
       setNewItemName('');
     }
   }
 
   function handleDeleteItem(id) {
-    setRankItems(rankitems.filter((item) => item.id !== id));
+    setRankItems(rankItems.filter((item) => item.id !== id));
   }
 
   return (
@@ -43,44 +66,46 @@ function App() {
         </div>
         <table>
           <tbody>
-            <td>
-              <ul className="rankitems">
-                {rankitems.map(({id, name, thumb}, index) => {
-                  return (
-                    <li>
-                      <p>
-                        { index }
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </td>
-            <td>
-              <DragDropContext onDragEnd={handleOnDragEnd}>
-                <Droppable droppableId="rankitems">
-                  {(provided) => (
-                    <ul className="rankitems" {...provided.droppableProps} ref={provided.innerRef}>
-                      {rankitems.map(({id, name, thumb}, index) => {
-                        return (
-                          <Draggable key={id} draggableId={id} index={index}>
-                            {(provided) => (
-                              <li class="rankitem" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <p>
-                                  { name }
-                                </p>
-                                <button onClick={() => handleDeleteItem(id)}>Delete</button>
-                              </li>
-                            )}
-                          </Draggable>
-                        );
-                      })}
-                      {provided.placeholder}
-                    </ul>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </td>
+            <tr>
+              <td>
+                <ul className="rankitems">
+                  {rankItems.map((_, index) => {
+                    return (
+                      <li key={index}>
+                        <p>
+                          { index }
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </td>
+              <td>
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                  <Droppable droppableId="rankitems">
+                    {(provided) => (
+                      <ul className="rankitems" {...provided.droppableProps} ref={provided.innerRef}>
+                        {rankItems.map(({id, name}, index) => {
+                          return (
+                            <Draggable key={id} draggableId={id} index={index}>
+                              {(provided) => (
+                                <li className="rankitem" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                  <p>
+                                    { name }
+                                  </p>
+                                  <button onClick={() => handleDeleteItem(id)}>Delete</button>
+                                </li>
+                              )}
+                            </Draggable>
+                          );
+                        })}
+                        {provided.placeholder}
+                      </ul>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </td>
+            </tr>
           </tbody>
         </table>
       </header>
