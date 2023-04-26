@@ -1,3 +1,7 @@
+# Simple Ranker App
+
+Create Items and rank them using Drag and Drop. Publically available under https://mzinsmeister.github.io/ranker/.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
