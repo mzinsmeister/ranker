@@ -19,4 +19,4 @@ jobs:
       uses: bitovi/github-actions-react-to-ghp@v1.2.0
       with:
         path: build # change to your build folder
-        build_command: npm run build --output-public-path='/ranker/static/'
+        build_command: PUBLIC_URL=/ranker npm run build
