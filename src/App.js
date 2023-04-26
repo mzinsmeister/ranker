@@ -61,6 +61,7 @@ function App() {
             placeholder="Add a new item..."
             value={newItemName}
             onChange={(event) => setNewItemName(event.target.value)}
+            onKeyDown={(event) => {if (event.key === 'Enter') handleAddItem()}}
           />
           <button onClick={handleAddItem}>Add</button>
         </div>
