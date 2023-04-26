@@ -22,7 +22,7 @@ function App() {
   function putDataToURL(rankItems) {
     const encodedList = Base64.btoa(JSON.stringify(rankItems)); // Encodes the list using Base64 encoding
     const url = `#${encodedList}`; // Builds the URL with the encoded list behind a hash
-    window.location.hash = url; // Navigates to the new URL with the encoded list behind a hash
+    window.history.replaceState(undefined, undefined, url); // Navigates to the new URL with the encoded list behind a hash
   }
 
   function setRankItems(rankItems) {
